@@ -334,17 +334,17 @@ with col_ai:
         st.session_state.noi_dung_ai_v4 = ""
 
     if st.button("✨ KÍCH HOẠT TƯ VẤN HƯỚNG NGHIỆP", use_container_width=True):
-        # 1. KÍCH HOẠT TIẾNG CHÀO (Chạy mượt mà trên Safari/Chrome điện thoại vì có tương tác bấm)
+        # 1. KÍCH HOẠT TIẾNG CHÀO
         cau_chao = f"Xin chào bạn {ten_hs}, học sinh lớp {lop_hs}. Trợ lý AI đang tiến hành phân tích dữ liệu hướng nghiệp của bạn, vui lòng đợi trong giây lát."
         st.components.v1.html(f"""
-            <script>
-                var msg = new SpeechSynthesisUtterance();
-                msg.text = "{cau_chao}";
-                msg.lang = "vi-VN";
-                msg.volume = 1;
-                msg.rate = 1;
-                window.speechSynthesis.speak(msg);
-            </script>
+<script>
+    var msg = new SpeechSynthesisUtterance();
+    msg.text = "{cau_chao}";
+    msg.lang = "vi-VN";
+    msg.volume = 1;
+    msg.rate = 1;
+    window.speechSynthesis.speak(msg);
+</script>
         """, height=0)
 
         # 2. TIẾN HÀNH GỌI AI PHÂN TÍCH NHƯ BÌNH THƯỜNG
@@ -371,41 +371,6 @@ with col_ai:
                     break
                 except Exception:
                     time.sleep(1.2)
-            
-            if not thanh_cong:
-                st.warning("⚠️ Hệ thống đang chuyển sang thuật toán phân tích cục bộ dự phòng:")
-                st.session_state.noi_dung_ai_v4 = (
-                    "### 1. ĐIỂM MẠNH & ĐIỂM HẠN CHẾ DIỆN RỘNG\n"
-                    f"- **Điểm mạnh:** Học sinh {ten_hs} sở hữu phổ điểm các môn công nghệ, tính toán logic và tự nhiên vô cùng nổi trội.\n"
-                    "- **Điểm hạn chế:** Cần cải thiện khả năng viết luận xã hội để tối ưu hóa điểm số toàn diện.\n\n"
-                    "### 2. TƯ VẤN CHỌN TỔ HỢP MÔN LỚP 10\n"
-                    "- **Định hướng tổ hợp môn:** Dựa trên khung GDPT 2018, học sinh nên chọn định hướng liên quan đến Vật lý, Hóa học kết hợp Tin học và Công nghệ.\n\n"
-                    "### 3. LỘ TRÌNH HÀNH ĐỘNG 3 GIAI ĐOẠN\n"
-                    "- **Giai đoạn 1:** Bứt phá học lực giai đoạn cuối cấp THCS.\n"
-                    "- **Giai đoạn 2:** Thử thách bản thân ở môi trường cấp 3.\n"
-                    "- **Giai đoạn 3:** Khảo sát các chuyên ngành đại học phù hợp.\n\n"
-                    "### 4. LỜI KHUYÊN PHỐI HỢP DÀNH CHO GIA ĐÌNH\n"
-                    "- Đồng hành và tạo không gian cho con tự quyết định lộ trình rèn luyện kỹ năng thực tế."
-                )
-
-            try:
-                conn = sqlite3.connect('he_thong_huong_nghiep.db')
-                c_db = conn.cursor()
-                c_db.execute('''
-                    INSERT INTO hoc_sinh_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (ten_hs, lop_hs, d_toan, d_van, d_anh, d_khtn, d_lsgd, d_tinhoc, d_congnghe, d_gdcd, score_r, score_i, score_a, score_s, score_e, score_c, "Đã Phân Tích 8 Môn"))
-                conn.commit()
-                conn.close()
-            except Exception:
-                pass
-
-    if not st.session_state.noi_dung_ai_v4:
-        st.markdown('<div style="color:#38bdf8; font-size:13.5px; font-weight:600;">💡 Hãy nhấn nút phía trên để AI tiến hành phân tích sâu diện rộng 8 môn học.</div>', unsafe_allow_html=True)
-    else:
-        st.success("✅ Phân tích tích hợp thành công!")
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 5. HIỂN THỊ KẾT QUẢ VÀ NÚT TẢI PDF ---
 def tao_file_pdf_v4(ten, lop, d1, d2, d3, d4, d5, d6, d7, d8, r, i, a, s, e, c_score, loi_khuyen_ai):

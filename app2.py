@@ -214,9 +214,7 @@ with col_main:
         lop_hs = st.text_input("🏫 Lớp:", value="9A1")
     
     # --- TỰ ĐỘNG PHÁT GIỌNG NÓI CHÀO ---
-    if ten_hs and lop_hs and ten_hs != "Nguyễn Văn A":
-        cau_chao = f"Xin chào bạn {ten_hs}, học sinh lớp {lop_hs}. Chào mừng bạn đến với hệ thống AI hướng nghiệp 8 môn toàn diện. Hãy hoàn thành điểm số và trắc nghiệm phía dưới để nhận kết quả nhé."
-        st.components.v1.html(f"""
+    
             <script>
                 function phatGiongNoi() {{
                     var msg = new SpeechSynthesisUtterance();
@@ -336,6 +334,20 @@ with col_ai:
         st.session_state.noi_dung_ai_v4 = ""
 
     if st.button("✨ KÍCH HOẠT TƯ VẤN HƯỚNG NGHIỆP", use_container_width=True):
+        # 1. KÍCH HOẠT TIẾNG CHÀO (Chạy mượt mà trên Safari/Chrome điện thoại vì có tương tác bấm)
+        cau_chao = f"Xin chào bạn {ten_hs}, học sinh lớp {lop_hs}. Trợ lý AI đang tiến hành phân tích dữ liệu hướng nghiệp của bạn, vui lòng đợi trong giây lát."
+        st.components.v1.html(f"""
+            <script>
+                var msg = new SpeechSynthesisUtterance();
+                msg.text = "{cau_chao}";
+                msg.lang = "vi-VN";
+                msg.volume = 1;
+                msg.rate = 1;
+                window.speechSynthesis.speak(msg);
+            </script>
+        """, height=0)
+
+        # 2. TIẾN HÀNH GỌI AI PHÂN TÍCH NHƯ BÌNH THƯỜNG
         with st.spinner("🤖 Hệ thống AI đang tổng hợp 8 môn học và phân tích chuyên sâu..."):
             prompt_pro = (
                 f"Bạn là Chuyên gia Tư vấn Hướng nghiệp Cao cấp ngành Giáo dục. Hãy phân tích bộ dữ liệu học sinh lớp 9:\n"
@@ -380,7 +392,7 @@ with col_ai:
                 conn = sqlite3.connect('he_thong_huong_nghiep.db')
                 c_db = conn.cursor()
                 c_db.execute('''
-                    INSERT INTO hoc_sing_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
+                    INSERT INTO hoc_sinh_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (ten_hs, lop_hs, d_toan, d_van, d_anh, d_khtn, d_lsgd, d_tinhoc, d_congnghe, d_gdcd, score_r, score_i, score_a, score_s, score_e, score_c, "Đã Phân Tích 8 Môn"))
                 conn.commit()

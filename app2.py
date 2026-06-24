@@ -334,21 +334,9 @@ with col_ai:
         st.session_state.noi_dung_ai_v4 = ""
 
     if st.button("✨ KÍCH HOẠT TƯ VẤN HƯỚNG NGHIỆP", use_container_width=True):
-        # 1. KÍCH HOẠT TIẾNG CHÀO (Đã tối ưu hóa chống lỗi thụt lề tuyệt đối)
+        # 1. KÍCH HOẠT TIẾNG CHÀO (Viết trên 1 dòng duy nhất - Không bao giờ lo lỗi thụt lề)
         cau_chao = f"Xin chào bạn {ten_hs}, học sinh lớp {lop_hs}. Trợ lý AI đang tiến hành phân tích dữ liệu hướng nghiệp của bạn, vui lòng đợi trong giây lát."
-        
-        # Biến HTML được thiết lập sát lề trái hoàn toàn để tránh xung đột cấu trúc Python
-        ma_am_thanh = f"""
-<script>
-    var msg = new SpeechSynthesisUtterance();
-    msg.text = "{cau_chao}";
-    msg.lang = "vi-VN";
-    msg.volume = 1;
-    msg.rate = 1;
-    window.speechSynthesis.speak(msg);
-</script>
-"""
-        st.components.v1.html(ma_am_thanh, height=0)
+        st.components.v1.html(f'<script>var msg = new SpeechSynthesisUtterance(); msg.text = "{cau_chao}"; msg.lang = "vi-VN"; msg.volume = 1; msg.rate = 1; window.speechSynthesis.speak(msg);</script>', height=0)
 
         # 2. TIẾN HÀNH GỌI AI PHÂN TÍCH NHƯ BÌNH THƯỜNG
         with st.spinner("🤖 Hệ thống AI đang tổng hợp 8 môn học và phân tích chuyên sâu..."):

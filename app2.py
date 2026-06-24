@@ -60,7 +60,7 @@ def xoa_dau_tieng_viet(text):
     text = re.sub(d_signs, "d", text)
     return text
 
-# --- CẤU HÌNH KHÓA API QUA STREAMLIT SECRETS (BẢO MẬT TUYỆT ĐỐI) ---
+# --- CẤU HÌNH KHÓA API QUA STREAMLIT SECRETS ---
 if "GEMINI_API_KEY" in st.secrets:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 else:
@@ -69,7 +69,8 @@ else:
 try:
     client = genai.Client(api_key=API_KEY)
 except Exception as e:
-    st.error("Lỗi cấu hình AI. Vui lòng kiểm tra lại mã API Key!")
+    st.error(f"Lỗi cấu hình AI: {e}. Vui lòng kiểm tra lại mã API Key!")
+
 # --- CẤU HÌNH TRANG WEB ---
 st.set_page_config(page_title="EduAI Guidance Pro v4.0", layout="wide", initial_sidebar_state="collapsed")
 
@@ -231,7 +232,6 @@ with col_main:
         """, height=0)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ĐÃ SỬA LỖI ĐÓNG NGOẶC CÚ PHÁP ĐÚNG ĐẮN TẠI ĐÂY
     st.markdown('<div class="section-title">📝 Học lực môn học (Cập Nhật Đầy Đủ 8 Môn)</div>', unsafe_allow_html=True)
     
     c_sub_m1, c_sub_m2 = st.columns(2)
@@ -350,9 +350,8 @@ with col_ai:
                 f"Yêu cầu: Lời khuyên thực tế, sâu sắc, mang tính định hướng cao, cấu trúc mạch lạc sạch sẽ."
             )
             
-           thanh_cong = False
+            thanh_cong = False
             loi_chi_tiet = ""
-            
             for luot_thu in range(3):
                 try:
                     response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt_pro)
@@ -360,18 +359,17 @@ with col_ai:
                     thanh_cong = True
                     break
                 except Exception as e:
-                    loi_chi_tiet = str(e)  # Lưu lại lỗi để hiển thị nếu thất bại cả 3 lần
+                    loi_chi_tiet = str(e)
                     time.sleep(1.2)
             
             if not thanh_cong:
-                # Hiển thị lỗi thật để bạn debug dễ dàng
+                # HIỂN THỊ LỖI THỰC TẾ TRÊN GIAO DIỆN ĐỂ TIỆN DEBUG
                 st.error(f"❌ Lỗi kết nối API thực tế: {loi_chi_tiet}")
-                
                 st.warning("⚠️ Hệ thống đang chuyển sang thuật toán phân tích cục bộ dự phòng:")
                 st.session_state.noi_dung_ai_v4 = (
                     "### 1. ĐIỂM MẠNH & ĐIỂM HẠN CHẾ DIỆN RỘNG\n"
                     f"- **Điểm mạnh:** Học sinh {ten_hs} sở hữu phổ điểm các môn công nghệ, tính toán logic và tự nhiên vô cùng nổi trội.\n"
-                    # ... (giữ nguyên phần code dự phòng phía dưới của bạn)
+                    "- **Điểm hạn chế:** Cần cải thiện khả năng viết luận xã hội để tối ưu hóa điểm số toàn diện.\n\n"
                     "### 2. TƯ VẤN CHỌN TỔ HỢP MÔN LỚP 10\n"
                     "- **Định hướng tổ hợp môn:** Dựa trên khung GDPT 2018, học sinh nên chọn định hướng liên quan đến Vật lý, Hóa học kết hợp Tin học và Công nghệ.\n\n"
                     "### 3. LỘ TRÌNH HÀNH ĐỘNG 3 GIAI ĐOẠN\n"
@@ -385,8 +383,9 @@ with col_ai:
             try:
                 conn = sqlite3.connect('he_thong_huong_nghiep.db')
                 c_db = conn.cursor()
+                # ĐÃ SỬA: Thay đổi 'hoc_sing_v4' thành 'hoc_sinh_v4' trùng khớp với tên bảng đã khởi tạo
                 c_db.execute('''
-                    INSERT INTO hoc_sing_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
+                    INSERT INTO hoc_sinh_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (ten_hs, lop_hs, d_toan, d_van, d_anh, d_khtn, d_lsgd, d_tinhoc, d_congnghe, d_gdcd, score_r, score_i, score_a, score_s, score_e, score_c, "Đã Phân Tích 8 Môn"))
                 conn.commit()
@@ -410,6 +409,7 @@ def tao_file_pdf_v4(ten, lop, d1, d2, d3, d4, d5, d6, d7, d8, r, i, a, s, e, c_s
     font_path_bold = "C:\\Windows\\Fonts\\arialbd.ttf"
     font_path_italic = "C:\\Windows\\Fonts\\ariali.ttf"
     
+    # ĐÃ TỐI ƯU: Cơ chế dự phòng font mềm dẻo khi deploy lên Linux/Streamlit Cloud giúp không bị crash ứng dụng
     if os.path.exists(font_path_regular) and os.path.exists(font_path_bold):
         pdfmetrics.registerFont(TTFont('Arial-VN', font_path_regular))
         pdfmetrics.registerFont(TTFont('Arial-VN-Bold', font_path_bold))

@@ -60,13 +60,16 @@ def xoa_dau_tieng_viet(text):
     text = re.sub(d_signs, "d", text)
     return text
 
-# --- CẤU HÌNH KHÓA API GENAI TRỰC TIẾP (SỬA LỖI SECRETS) ---
-API_KEY = 'AQ.Ab8RN6LaOC1oih1PpFz5TFXTHifugMpCTfx_vLNaQAsJvheWNQ'
+# --- CẤU HÌNH KHÓA API QUA STREAMLIT SECRETS (BẢO MẬT TUYỆT ĐỐI) ---
+if "GEMINI_API_KEY" in st.secrets:
+    API_KEY = st.secrets["GEMINI_API_KEY"]
+else:
+    API_KEY = "MÃ_DỰ_PHÒNG_NẾU_CHẠY_LOCAL"
+
 try:
     client = genai.Client(api_key=API_KEY)
 except Exception as e:
     st.error("Lỗi cấu hình AI. Vui lòng kiểm tra lại mã API Key!")
-
 # --- CẤU HÌNH TRANG WEB ---
 st.set_page_config(page_title="EduAI Guidance Pro v4.0", layout="wide", initial_sidebar_state="collapsed")
 

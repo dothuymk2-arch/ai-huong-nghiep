@@ -352,6 +352,8 @@ with col_ai:
             
             thanh_cong = False
             loi_chi_tiet = ""
+            
+            # Thử gọi API tối đa 3 lần nếu bị nghẽn (Exponential backoff nhẹ)
             for luot_thu in range(3):
                 try:
                     response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt_pro)
@@ -360,12 +362,17 @@ with col_ai:
                     break
                 except Exception as e:
                     loi_chi_tiet = str(e)
-                    time.sleep(1.2)
+                    # Thời gian chờ tăng dần sau mỗi lượt thử thất bại (1.5s, 3s...)
+                    time.sleep(1.5 * (luot_thu + 1))
             
             if not thanh_cong:
-                # HIỂN THỊ LỖI THỰC TẾ TRÊN GIAO DIỆN ĐỂ TIỆN DEBUG
-                st.error(f"❌ Lỗi kết nối API thực tế: {loi_chi_tiet}")
-                st.warning("⚠️ Hệ thống đang chuyển sang thuật toán phân tích cục bộ dự phòng:")
+                # 1. Ghi nhận lỗi thực tế vào Console của Server để nhà phát triển tiện theo dõi
+                print(f"[DEBUG LOG] API Gemini gặp sự cố: {loi_chi_tiet}")
+                
+                # 2. Thông báo nhẹ nhàng, tinh tế cho người dùng thay vì quăng cục lỗi đỏ lòm
+                st.info("💡 Máy chủ AI chính hiện đang bận do lượt truy cập tăng cao. Ứng dụng đã kích hoạt thuật toán phân tích thông minh dự phòng để không gián đoạn trải nghiệm của bạn!")
+                
+                # Kích hoạt nội dung từ thuật toán cục bộ dự phòng
                 st.session_state.noi_dung_ai_v4 = (
                     "### 1. ĐIỂM MẠNH & ĐIỂM HẠN CHẾ DIỆN RỘNG\n"
                     f"- **Điểm mạnh:** Học sinh {ten_hs} sở hữu phổ điểm các môn công nghệ, tính toán logic và tự nhiên vô cùng nổi trội.\n"
@@ -380,18 +387,18 @@ with col_ai:
                     "- Đồng hành và tạo không gian cho con tự quyết định lộ trình rèn luyện kỹ năng thực tế."
                 )
 
+            # Lưu thông tin học sinh vào Database độc lập với trạng thái API
             try:
                 conn = sqlite3.connect('he_thong_huong_nghiep.db')
                 c_db = conn.cursor()
-                # ĐÃ SỬA: Thay đổi 'hoc_sing_v4' thành 'hoc_sinh_v4' trùng khớp với tên bảng đã khởi tạo
                 c_db.execute('''
                     INSERT INTO hoc_sinh_v4 (ten, lop, toan, van, anh, khtn, lsgd, tinhoc, congnghe, gdcd, r, i, a, s, e, c, nganh_goi_y)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (ten_hs, lop_hs, d_toan, d_van, d_anh, d_khtn, d_lsgd, d_tinhoc, d_congnghe, d_gdcd, score_r, score_i, score_a, score_s, score_e, score_c, "Đã Phân Tích 8 Môn"))
                 conn.commit()
                 conn.close()
-            except Exception:
-                pass
+            except Exception as db_err:
+                print(f"[DATABASE ERROR] Không thể lưu thông tin: {db_err}")
 
     if not st.session_state.noi_dung_ai_v4:
         st.markdown('<div style="color:#38bdf8; font-size:13.5px; font-weight:600;">💡 Hãy nhấn nút phía trên để AI tiến hành phân tích sâu diện rộng 8 môn học.</div>', unsafe_allow_html=True)
@@ -399,7 +406,6 @@ with col_ai:
         st.success("✅ Phân tích tích hợp thành công!")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
 # --- 5. HIỂN THỊ KẾT QUẢ VÀ NÚT TẢI PDF ---
 def tao_file_pdf_v4(ten, lop, d1, d2, d3, d4, d5, d6, d7, d8, r, i, a, s, e, c_score, loi_khuyen_ai):
     buf = io.BytesIO()

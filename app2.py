@@ -334,7 +334,7 @@ with col_ai:
         st.session_state.noi_dung_ai_v4 = ""
 
     if st.button("✨ KÍCH HOẠT TƯ VẤN HƯỚNG NGHIỆP", use_container_width=True):
-        # 1. KÍCH HOẠT TIẾNG CHÀO (Viết trên 1 dòng duy nhất - Không bao giờ lo lỗi thụt lề)
+        # 1. KÍCH HOẠT TIẾNG CHÀO (Đóng gói gọn gàng trên một dòng)
         cau_chao = f"Xin chào bạn {ten_hs}, học sinh lớp {lop_hs}. Trợ lý AI đang tiến hành phân tích dữ liệu hướng nghiệp của bạn, vui lòng đợi trong giây lát."
         st.components.v1.html(f'<script>var msg = new SpeechSynthesisUtterance(); msg.text = "{cau_chao}"; msg.lang = "vi-VN"; msg.volume = 1; msg.rate = 1; window.speechSynthesis.speak(msg);</script>', height=0)
 
@@ -391,13 +391,13 @@ with col_ai:
             except Exception:
                 pass
 
+    # ĐĂNG KÝ HIỂN THỊ KẾT QUẢ (Căn lề chuẩn theo luồng bọc giao diện div bên ngoài)
     if not st.session_state.noi_dung_ai_v4:
         st.markdown('<div style="color:#38bdf8; font-size:13.5px; font-weight:600;">💡 Hãy nhấn nút phía trên để AI tiến hành phân tích sâu diện rộng 8 môn học.</div>', unsafe_allow_html=True)
     else:
         st.success("✅ Phân tích tích hợp thành công!")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
 # --- 5. HIỂN THỊ KẾT QUẢ VÀ NÚT TẢI PDF ---
 def tao_file_pdf_v4(ten, lop, d1, d2, d3, d4, d5, d6, d7, d8, r, i, a, s, e, c_score, loi_khuyen_ai):
     buf = io.BytesIO()

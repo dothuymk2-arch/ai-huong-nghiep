@@ -350,22 +350,28 @@ with col_ai:
                 f"Yêu cầu: Lời khuyên thực tế, sâu sắc, mang tính định hướng cao, cấu trúc mạch lạc sạch sẽ."
             )
             
-            thanh_cong = False
+           thanh_cong = False
+            loi_chi_tiet = ""
+            
             for luot_thu in range(3):
                 try:
                     response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt_pro)
                     st.session_state.noi_dung_ai_v4 = response.text
                     thanh_cong = True
                     break
-                except Exception:
+                except Exception as e:
+                    loi_chi_tiet = str(e)  # Lưu lại lỗi để hiển thị nếu thất bại cả 3 lần
                     time.sleep(1.2)
             
             if not thanh_cong:
+                # Hiển thị lỗi thật để bạn debug dễ dàng
+                st.error(f"❌ Lỗi kết nối API thực tế: {loi_chi_tiet}")
+                
                 st.warning("⚠️ Hệ thống đang chuyển sang thuật toán phân tích cục bộ dự phòng:")
                 st.session_state.noi_dung_ai_v4 = (
                     "### 1. ĐIỂM MẠNH & ĐIỂM HẠN CHẾ DIỆN RỘNG\n"
                     f"- **Điểm mạnh:** Học sinh {ten_hs} sở hữu phổ điểm các môn công nghệ, tính toán logic và tự nhiên vô cùng nổi trội.\n"
-                    "- **Điểm hạn chế:** Cần cải thiện khả năng viết luận xã hội để tối ưu hóa điểm số toàn diện.\n\n"
+                    # ... (giữ nguyên phần code dự phòng phía dưới của bạn)
                     "### 2. TƯ VẤN CHỌN TỔ HỢP MÔN LỚP 10\n"
                     "- **Định hướng tổ hợp môn:** Dựa trên khung GDPT 2018, học sinh nên chọn định hướng liên quan đến Vật lý, Hóa học kết hợp Tin học và Công nghệ.\n\n"
                     "### 3. LỘ TRÌNH HÀNH ĐỘNG 3 GIAI ĐOẠN\n"
